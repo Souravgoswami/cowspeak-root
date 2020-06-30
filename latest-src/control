@@ -1,8 +1,0 @@
-Package: cowspeak
-Version: 2.82
-Section: misc
-Priority: optional
-Architecture: all
-Depends: ruby
-Maintainer: Sourav Goswami <souravgoswami@protonmail.com>
-Description: Display an animal with a random quote or your own text.
