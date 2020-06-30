@@ -7,21 +7,38 @@ PATH = File.join(File.dirname(__FILE__), 'cowspeak')
 STDOUT.sync = true
 
 class String
-	@@colours = [[154, 184, 208, 203, 198, 164, 129, 92], [63, 33, 39, 44, 49, 83, 118], [40,41,42,43,211, 210, 209, 208]].tap { |itself| itself.concat(itself.map(&:reverse)) }
-
 	define_method(:colourize) do |final = ''|
-		colour = @@colours.sample
-		colour_size = colour.size - 1
-		index, div, val = 0, length / colour_size, ''
-		div = 1 if div == 0
-		colour_size -= 1
+		colours, line_length = [], -1
+		sample_colour, rev, repeat = rand(7), rand < 0.5, rand < 0.5
+		temp = ''
 
-		each_char.with_index do |c, i|
-			index += 1 if (i % div == 0 && index < colour_size) && i > 1
-			val.concat("\e[38;5;#{colour[index]}m#{c}")
+		each_line do |c|
+			n, i = c.length, -1
+
+			if line_length != n
+				step, line_length = 255.0./(n), n
+				colours.clear
+
+				while (i += 1) < n
+					colours.<<(
+						case sample_colour
+							when 0 then i.*(step).then { |l| [ l.*(2).to_i.clamp(0, 255), l.to_i.clamp(0, 255), 255.-(l).to_i.clamp(0, 255) ] }
+							when 1 then i.*(step).then { |l| [ 255, 255.-(l).to_i.clamp(0, 255), l.to_i.clamp(0, 255) ] }
+							when 2 then i.*(step).then { |l| [ l.to_i.clamp(0, 255), 255.-(l).to_i.clamp(0, 255), l.to_i.clamp(0, 255) ] }
+							when 3 then i.*(step).then { |l| [ l.*(2).to_i.clamp(0, 255), 255.-(l).to_i.clamp(0, 255), 100.+(l / 2).to_i.clamp(0, 255) ] }
+							when 4 then i.*(step).then { |l| [ 30, 255.-(l / 2).to_i.clamp(0, 255), 110.+(l / 2).to_i.clamp(0, 255) ] }
+							when 5 then i.*(step).then { |l| [ 255.-(l * 2).to_i.clamp(0, 255), l.to_i.clamp(0, 255), 200 ] }
+							when 6 then i.*(step).then { |l| [ 50.+(255 - l).to_i.clamp(0, 255), 255.-(l / 2).to_i.clamp(0, 255), (l * 2).to_i.clamp(0, 255) ] }
+							else  i.*(step).then { |l| [ l.*(2).to_i.clamp(0, 255), 255.-(l).to_i.clamp(0, 255), 100.+(l / 2).to_i.clamp(0, 255) ] }
+						end
+					).tap { | x | x.reverse! if repeat }
+				end
+			end
+
+			i = -1
+			temp.concat "\e[38;2;#{colours[i][0]};#{colours[i][1]};#{colours[i][2]}m#{c[i]}" while (i += 1) < n
 		end
-
-		val + "\e[0m" + final
+		temp << final
 	end
 end
 
@@ -43,9 +60,18 @@ define_method(:detect_os) do
 end
 
 def help
-	message = if system("sh -c 'type -p dpkg > /dev/null'")
-		"\nTips: If you are using debian / debian based system, you can install the deb file: "\
-			'https://github.com/Souravgoswami/cowspeak-deb'
+	message = if system("sh -c 'type -p dpkg &> /dev/null && type -p pacman &>/dev/null'")
+			"\n\u{2022} Recommendation: Your system seems to have both dpkg and pacman...\n"\
+			"\t\u{2023} If you are using Arch Linux or derivatives, you can get cowspeak from AUR:\n"\
+			"\t\thttps://aur.archlinux.org/packages/cowspeak/\n"\
+			"\t\u{2023} If you are on debian / debian based system, you can install the deb file:\n"\
+			"\t\thttps://github.com/Souravgoswami/cowspeak-root/tree/master/Debian"
+		elsif system("sh -c 'type -p dpkg &> /dev/null'")
+			"\n\u{2022} Recommendation: If you are using debian / debian based system, you can install the deb file:\n"\
+			"\t\u{2023} https://github.com/Souravgoswami/cowspeak-root/tree/master/Debian"
+		elsif system("sh -c 'type -p pacman &> /dev/null'")
+			"\n\u{2022} Recommendation: If you are using Arch Linux or derivatives, you can get cowspeak from AUR:\n"\
+			"\t\u{2023} https://aur.archlinux.org/packages/cowspeak/\n"\
 		else ''
 	end
 
@@ -56,7 +82,8 @@ def help
 	STDOUT.puts <<~EOF.each_line.map(&:colourize).join
 		Cowspeak speaks a quote on your terminal.
 		It is customizable. It can also show you useful system information.
-		This is cowspeak installer #{VERSION}#{message}
+		This is cowspeak installer #{VERSION}
+		#{message}
 
 		Usage:
 		#{opts}
@@ -65,7 +92,7 @@ end
 
 def install
 	throw :WriteError if !File.writable?(PATH) && File.exist?(PATH)
-	STDOUT.puts("Downloading file from https://raw.githubusercontent.com/Souravgoswami/cowspeak-deb/master/cowspeak/usr/bin/cowspeak. Press Enter to Confirm.".colourize)
+	STDOUT.puts("Downloading file fromhttps://raw.githubusercontent.com/Souravgoswami/cowspeak-root/master/latest-src/usr/bin/cowspeak. Press Enter to Confirm.".colourize)
 	return nil unless STDIN.getch == ?\r
 
 	loop do
@@ -80,7 +107,7 @@ def install
 	anim, str = %W(\xE2\xA0\x82 \xE2\xA0\x92 \xE2\xA0\xB2 \xE2\xA0\xB6), 'Please Wait'
 	t = Thread.new { loop while str.size.times { |i| print(" \e[2K#{anim.rotate![0]} #{str[0...i]}#{str[i].swapcase}#{str[i.next..-1]}#{?..*((i += 1) % 4)}\r") || sleep(0.15) } }
 
-	data = Net::HTTP.get(URI('https://raw.githubusercontent.com/Souravgoswami/cowspeak-deb/master/cowspeak/usr/bin/cowspeak'))
+	data = Net::HTTP.get(URI('https://raw.githubusercontent.com/Souravgoswami/cowspeak-root/master/latest-src/usr/bin/cowspeak'))
 	t.kill
 
 	File.write(PATH, data)
