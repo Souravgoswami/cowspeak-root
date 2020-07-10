@@ -32,7 +32,7 @@ Cowspeak Debian installer can also be found [here](https://www.opendesktop.org/p
 
 ## Running Cowspeak on Other Linux Distributions ⚙️
 
-If you want to run `cowspeak` in Arch Linux / OpenSUSE / Fedora / CentOS / RedHat etc. other GNU/Linux distributions, then please follow the steps:
+If you want to run `cowspeak` in any GNU/Linux distributions, then please follow the steps:
     
    + Make sure you have **Ruby** 💎
    
