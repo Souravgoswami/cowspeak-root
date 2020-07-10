@@ -20,7 +20,7 @@ Cowspeak Debian installer can also be found [here](https://www.opendesktop.org/p
 
 ## Running Cowspeak on Debian/Linux Mint/Ubuntu/Kali Linux/Raspbian/Other Debian Based Systems 🐄
 
-   + Download the latest deb file ![from here](https://github.com/Souravgoswami/cowspeak-deb).
+   + Download the latest deb file ![from here](https://github.com/Souravgoswami/cowspeak-root/tree/master/Debian).
         
    + Install the deb file:
             `dpkg -i cowspeak-v<version>.deb`
