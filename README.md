@@ -34,14 +34,8 @@ Cowspeak Debian installer can also be found [here](https://www.opendesktop.org/p
 
 If you want to run `cowspeak` in Arch Linux / OpenSUSE / Fedora / CentOS / RedHat etc. other GNU/Linux distributions, then please follow the steps:
     
-   + Make sure you have **Ruby** 💎:
+   + Make sure you have **Ruby** 💎
    
-         A. Arch Linux 🏹 : `sudo pacman -S ruby`
-         
-         B. Fedora / CentOS: `sudo yum install ruby`
-         
-         For any other distribution, install the Ruby package. When done, follow the next step!
-
    + Run the ![Root_Installer.rb](https://github.com/Souravgoswami/cowspeak-deb/blob/master/Root_Installer.rb) as root.
          
         Example: `sudo ruby Root_Installer.rb`
