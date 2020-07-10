@@ -27,6 +27,12 @@ Cowspeak Debian installer can also be found [here](https://www.opendesktop.org/p
                 Or
              You can use gdebi-gtk.
 
+## Running Cowspeak on Arch Linux/Manjaro/Archlabs and other Arch based distributions
+
+   + git clone https://aur.archlinux.org/cowspeak.git
+   + cd cowspeak
+   + makepkg -Aris
+
 ## Running Cowspeak on Other Linux Distributions ⚙️
 
 If you want to run `cowspeak` in Arch Linux / OpenSUSE / Fedora / CentOS / RedHat etc. other GNU/Linux distributions, then please follow the steps:
