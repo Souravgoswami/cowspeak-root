@@ -24,7 +24,7 @@
 		3. Run:
 
 		```
-		source="tarballs/cowspeak-v`ruby version_info.rb`.tar.xz" ; echo "Creating $source" ; tar -cjvf "$source" latest-src/
+		generate_tarball.sh
 		```
 
 		Make sure you have the version_info.rb file

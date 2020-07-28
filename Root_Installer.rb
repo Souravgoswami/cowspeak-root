@@ -92,7 +92,7 @@ end
 
 def install
 	throw :WriteError if !File.writable?(PATH) && File.exist?(PATH)
-	STDOUT.puts("Downloading file fromhttps://raw.githubusercontent.com/Souravgoswami/cowspeak-root/master/latest-src/usr/bin/cowspeak. Press Enter to Confirm.".colourize)
+	STDOUT.puts("Downloading file from https://raw.githubusercontent.com/Souravgoswami/cowspeak-root/master/Other%20Distributions/cowspeak. Press Enter to Confirm.".colourize)
 	return nil unless STDIN.getch == ?\r
 
 	loop do
@@ -107,7 +107,7 @@ def install
 	anim, str = %W(\xE2\xA0\x82 \xE2\xA0\x92 \xE2\xA0\xB2 \xE2\xA0\xB6), 'Please Wait'
 	t = Thread.new { loop while str.size.times { |i| print(" \e[2K#{anim.rotate![0]} #{str[0...i]}#{str[i].swapcase}#{str[i.next..-1]}#{?..*((i += 1) % 4)}\r") || sleep(0.15) } }
 
-	data = Net::HTTP.get(URI('https://raw.githubusercontent.com/Souravgoswami/cowspeak-root/master/latest-src/usr/bin/cowspeak'))
+	data = Net::HTTP.get(URI('https://raw.githubusercontent.com/Souravgoswami/cowspeak-root/master/Other%20Distributions/cowspeak'))
 	t.kill
 
 	File.write(PATH, data)
