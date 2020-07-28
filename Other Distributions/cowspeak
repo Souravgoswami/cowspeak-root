@@ -1,10 +1,13 @@
-#!/usr/bin/ruby -W0
+#!/usr/bin/ruby -w
 # Encoding: UTF-8
 # Written by Sourav Goswami <souravgoswami@protonmail.com>
-# The GNU General Public License v3.0
+# MIT Licence
 
 # For ROOT installation, set Root to true
 ROOT = true
+
+# Disable download of assets and other stuff
+ROOT_DISABLE_DOWNLOAD = false
 
 VERSION = "Cowspeak version 2.83"
 
@@ -129,8 +132,7 @@ help = ->(documentation = false) do
 			  --borderh=<ch>/-brh=<ch> 	Horizontal border character.
 			  --borderv=<ch>/-brv=<ch>	Vertical border character.
 			  --bubble=<text>/-bbl=<text> 	Specify the character of speech balloons.
-			  --documentation/-d        	Display the documentation.
-			  --download/-dl		Download missing files from Github.
+			  --documentation/-d        	Display the documentation.#{"\n  --download/-dl		Download missing files from Github." unless ROOT_DISABLE_DOWNLOAD}
 			  --file=<path>/-f=<path>	Specify the path of your own ASCII art.
 			  --fill=<char>/-fc=<char>	Fill the quote area with a character.
 			  --force-update/-fu		Forcefully update (also see --update)
@@ -367,89 +369,86 @@ if ARGV.include?('--update') || ARGV.include?('-u') || force_update
 	end
 end
 
-if ROOT
-	p :hi
-	if ARGV.include?('--download') || ARGV.include?('-dl')
-		ARGV.delete('--download')
-		ARGV.delete('-dl')
+if !ROOT_DISABLE_DOWNLOAD && (ARGV.include?('--download') || ARGV.include?('-dl'))
+	ARGV.delete('--download')
+	ARGV.delete('-dl')
 
-		unless STDIN.tty?
-			puts colourize.("#{BASENAME} not running in a tty!")
-			puts colourize.("This can lead to problems...")
-			puts colourize.("Make sure you are running cowspeak in a terminal without any redirection.")
-			puts colourize.("Usage Example with -dl / --download: \n\t#{BASENAME} -dl / --download")
-			exit(0)
+	unless STDIN.tty?
+		puts colourize.("#{BASENAME} not running in a tty!")
+		puts colourize.("This can lead to problems...")
+		puts colourize.("Make sure you are running cowspeak in a terminal without any redirection.")
+		puts colourize.("Usage Example with -dl / --download: \n\t#{BASENAME} -dl / --download")
+		exit(0)
+	end
+
+	begin
+		require 'net/https'
+		colourize.("Download Data from the internet and save them into #{PATH}/?(Y/n): ")
+		exit!(0) if STDIN.gets.to_s.strip.downcase == ?n
+
+		unless File.exist?(PATH)
+			Dir.mkdir(PATH)
+			colourize.call "Created directory #{PATH}\n"
 		end
 
-		begin
-			require 'net/https'
-			colourize.("Download Data from the internet and save them into #{PATH}/?(Y/n): ")
-			exit!(0) if STDIN.gets.to_s.strip.downcase == ?n
+		# The fortune database originally came from https://raw.githubusercontent.com/bmc/fortunes/master/fortunes
 
-			unless File.exist?(PATH)
-				Dir.mkdir(PATH)
-				colourize.call "Created directory #{PATH}\n"
+		Warning.warn "#{PATH} cannot be accesses. Please be root..." unless File.writable?(File.join(PATH))
+		sleep 1
+		data = Animate { Net::HTTP.get(URI('https://raw.githubusercontent.com/Souravgoswami/cowspeak/master/cowspeak_files/fortunes.data')) }.to_s
+
+		unless data.include?('404: Not Found')
+			File.write(File.join(PATH, 'fortunes.data'), data)
+			colourize.call "The fortunes database has been downloaded and installed to #{PATH}fortunes.\n"
+
+			unless File.exist?(File.join(PATH, 'arts'))
+				Dir.mkdir(File.join(PATH, 'arts'))
+				colourize.call "Created directory #{File.join(PATH, 'arts')}/\n"
+			end
+			puts colourize.call "Downloading art files...\n"
+
+			# Install the art files...
+			write_to = %w(cow dolphin killer_squirrels penguin spider squirrels cat deer dog eagle hippo scorpion camel turtle mouse)
+			uris = write_to.map { |x| 'https://raw.githubusercontent.com/Souravgoswami/cowspeak/master/cowspeak_files/arts/'.freeze + x + '.art' }
+
+			raise RuntimeError, "Dear Developer, the uris has to match write_to size, line: #{__LINE__}" unless write_to.size == uris.size
+
+			uris.size.times do |index|
+				puts colourize.("Downloading art file from #{uris[index]}")
+				File.write("#{File.join(PATH, 'arts', write_to[index])}.art", Animate { Net::HTTP.get(URI(uris[index])) })
+				puts colourize.call "Successfully installed an art file in #{File.join(PATH, 'arts')}/"
+				puts colourize.call "#{IO.read(File.join(PATH, 'arts', write_to[index]) + '.art')}\n"
 			end
 
-			# The fortune database originally came from https://raw.githubusercontent.com/bmc/fortunes/master/fortunes
+			puts colourize.call "Downloading the manual from #{MAN_PAGE}"
+			File.write(MAN_PAGE_DIR, Net::HTTP.get(URI(MAN_PAGE)))
+			puts colourize.call "Successfully downloaded the manual at #{MAN_PAGE_DIR}"
 
-			Warning.warn "#{PATH} cannot be accesses. Please be root..." unless File.writable?(File.join(PATH))
-			sleep 1
-			data = Animate { Net::HTTP.get(URI('https://raw.githubusercontent.com/Souravgoswami/cowspeak/master/cowspeak_files/fortunes.data')) }.to_s
-
-			unless data.include?('404: Not Found')
-				File.write(File.join(PATH, 'fortunes.data'), data)
-				colourize.call "The fortunes database has been downloaded and installed to #{PATH}fortunes.\n"
-
-				unless File.exist?(File.join(PATH, 'arts'))
-					Dir.mkdir(File.join(PATH, 'arts'))
-					colourize.call "Created directory #{File.join(PATH, 'arts')}/\n"
-				end
-				puts colourize.call "Downloading art files...\n"
-
-				# Install the art files...
-				write_to = %w(cow dolphin killer_squirrels penguin spider squirrels cat deer dog eagle hippo scorpion camel turtle mouse)
-				uris = write_to.map { |x| 'https://raw.githubusercontent.com/Souravgoswami/cowspeak/master/cowspeak_files/arts/'.freeze + x + '.art' }
-
-				raise RuntimeError, "Dear Developer, the uris has to match write_to size, line: #{__LINE__}" unless write_to.size == uris.size
-
-				uris.size.times do |index|
-					puts colourize.("Downloading art file from #{uris[index]}")
-					File.write("#{File.join(PATH, 'arts', write_to[index])}.art", Animate { Net::HTTP.get(URI(uris[index])) })
-					puts colourize.call "Successfully installed an art file in #{File.join(PATH, 'arts')}/"
-					puts colourize.call "#{IO.read(File.join(PATH, 'arts', write_to[index]) + '.art')}\n"
-				end
-
-				puts colourize.call "Downloading the manual from #{MAN_PAGE}"
-				File.write(MAN_PAGE_DIR, Net::HTTP.get(URI(MAN_PAGE)))
-				puts colourize.call "Successfully downloaded the manual at #{MAN_PAGE_DIR}"
-
-				puts colourize.call 'All Done!'
-				puts colourize.call "To see the available arts, type: #{BASENAME} --show-arts or -sa"
-				puts colourize.call "Here's a fortune for you!"
-			else
-				colourize.call "Sorry for the inconvenience. Something went terribly wrong (can't access one of the file).\n"
-				colourize.call "If the problem persists, contact: souravgoswami@protonmail.com.\n"
-				exit! ERR_DOWNLOAD_UNAVAILABLE
-			end
-
-		rescue SocketError, OpenSSL::SSL::SSLError
-			colourize.call "Do you have an internet connection?\n"
-			colourize.call "1. Exit.\n2. Retry.\nDefault: 1 (Exit).\n"
-			retry if STDIN.gets.to_i == 2
-			exit! ERR_NO_INTERNET
-
-		rescue Errno::EACCES
-			colourize.call "Requires root privilege to write to #{PATH}/ directory. Please run #{BASENAME} with proper permission.\n"
-			exit! ERR_NO_PERMISSION
-
-		rescue SignalException, Interrupt, SystemExit
-			colourize.call "\nUh Oh! The download is interrupted!\n\n\n"
-			exit! ERR_BAD_EXIT
-
-		rescue Exception => e
-			exception_handle.(e)
+			puts colourize.call 'All Done!'
+			puts colourize.call "To see the available arts, type: #{BASENAME} --show-arts or -sa"
+			puts colourize.call "Here's a fortune for you!"
+		else
+			colourize.call "Sorry for the inconvenience. Something went terribly wrong (can't access one of the file).\n"
+			colourize.call "If the problem persists, contact: souravgoswami@protonmail.com.\n"
+			exit! ERR_DOWNLOAD_UNAVAILABLE
 		end
+
+	rescue SocketError, OpenSSL::SSL::SSLError
+		colourize.call "Do you have an internet connection?\n"
+		colourize.call "1. Exit.\n2. Retry.\nDefault: 1 (Exit).\n"
+		retry if STDIN.gets.to_i == 2
+		exit! ERR_NO_INTERNET
+
+	rescue Errno::EACCES
+		colourize.call "Requires root privilege to write to #{PATH}/ directory. Please run #{BASENAME} with proper permission.\n"
+		exit! ERR_NO_PERMISSION
+
+	rescue SignalException, Interrupt, SystemExit
+		colourize.call "\nUh Oh! The download is interrupted!\n\n\n"
+		exit! ERR_BAD_EXIT
+
+	rescue Exception => e
+		exception_handle.(e)
 	end
 end
 
@@ -475,15 +474,21 @@ begin
 
 	unless File.file?(file) || !show_art
 		colourize.call "Looks like the art file doesn't exist.\n"
-		colourize.call "Type #{BASENAME} --download or #{BASENAME} -dl to download all the necessary files.\n"
+
+		unless ROOT_DISABLE_DOWNLOAD
+			colourize.call "Type #{BASENAME} --download or #{BASENAME} -dl to download all the necessary files.\n"
+		else
+			colourize.call "Please make sure you have installed cowspeak correctly...\n"
+		end
+
 		colourize.call "Type #{BASENAME} --show-arts or #{BASENAME} -sa to see available arts in the default directory...\n"
 		colourize.call "Type #{BASENAME} --help or #{BASENAME} -h for help.\n"
 		colourize.call "Type #{BASENAME} --art or #{BASENAME} -a for help regarding art.\n"
 		print "\e[1m"
 		colourize.call "If you still want to run #{BASENAME} without the animals, use the -na or --no-art argument\n"
 		print "\e[0m"
-		file = File.join(PATH, "arts/#{%w(cow squirrels killer_squirrels cat deer dog mouse camel).sample}.art")
 
+		file = File.join(PATH, "arts/#{%w(cow squirrels killer_squirrels cat deer dog mouse camel).sample}.art")
 		unless File.readable?(file)
 			colourize.("The default files at location #{PATH + 'arts/'} doesn't exist\n")
 			colourize.("Please run #{BASENAME} -dl to download all the necessary files at #{PATH}\n")
