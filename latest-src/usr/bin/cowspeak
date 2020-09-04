@@ -9,7 +9,7 @@ ROOT = true
 # Disable download of assets and other stuff
 ROOT_DISABLE_DOWNLOAD = true
 
-VERSION = "Cowspeak version 2.83"
+VERSION = "Cowspeak version 2.84"
 
 # 1000.0 => MB, 1024 => MiB when using the --welcome or -w option.
 UNIT = 1000.0
