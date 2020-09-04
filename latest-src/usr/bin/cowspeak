@@ -1,4 +1,4 @@
-#!/usr/bin/ruby -W0
+#!/usr/bin/env ruby
 # Encoding: UTF-8
 # Written by Sourav Goswami <souravgoswami@protonmail.com>
 # MIT Licence
