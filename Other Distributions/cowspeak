@@ -7,7 +7,7 @@
 ROOT = true
 
 # Disable download of assets and other stuff
-ROOT_DISABLE_DOWNLOAD = true
+ROOT_DISABLE_DOWNLOAD = false
 
 VERSION = "Cowspeak version 3.12"
 
