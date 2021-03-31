@@ -43,7 +43,7 @@ abort(
 ) unless Process.uid == 0
 
 # Executable check
-unless ENV['PATH'].split(File::PATH_SEPARATOR).any? { |x| Dir.children(x).include?(EXECUTABLE) }
+unless ENV['PATH'].split(File::PATH_SEPARATOR).any? { |x| Dir.children(x).include?(EXECUTABLE) if Dir.exist?(x) }
 	puts "\e[1;38;2;255;50;50mCan't find executable #{EXECUTABLE}. Leaving everything untouched!\e[0m"
 	exit! 2
 end
