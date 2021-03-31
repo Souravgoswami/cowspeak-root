@@ -20,4 +20,4 @@ package() {
 	cp -dpr --no-preserve=ownership "${usr}/share/" "${pkgdir}/usr/"
 }
 
-md5sums=('a4afdbbbb1989ee63c4171eeaffdcaee')
+md5sums=('0377efe3ccf1667d92d7f922d90fbaa0')
