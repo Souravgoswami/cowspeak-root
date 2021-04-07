@@ -86,5 +86,20 @@ If you pass an invalid argument, cowspeak will not inform you. It will simply ig
  
 ![cowspeak](https://github.com/Souravgoswami/cowspeak-deb/blob/master/Screenshots/Screenshot_2019-03-26_04-04-11.png)
 
+## Developer Notes 👨🏻‍💻👩🏻‍💻
+When modifying cowspeak, you have to keep 2 versions:
+1. Keep the first file in latest-src/usr/bin/cowspeak. Change ROOT=true, and ROOT_DISABLE_DOWNLOAD=true.
+2. Keep the second file in "Other Distributions". Change ROOT=true, and ROOT_DISABLE_DOWNLOAD=false.
+
+You have to update the version.
+
+Now, you have to edit "./control", and add the current version. Run `ruby dpkg-build.rb`. Fakeroot isn't utilized yet, so you have to run it as **root**. It will generate a *.deb* file in the *Debian/* directory. If you run it again, a version will be added. Like "cowspeak-v3.22.deb", "cowspeak-v3.22-1.deb", "cowspeak-v3.22-2.deb". So avoid building same package.
+
+Then you have to run `bash generate_tarball.sh`. It will generate a tarball under *tarballs/* directory.
+
+Push that changes to github. Then edit the *Arch Linux/PKGBUILD*. Add the version there. And run `makepkg -g` to generate the md5 checksum, put that in the PKGBUILD again. Then run `makepkg --printsrcinfo > .SRCINFO` to create/update the *.SRCINFO* file.
+
+That's it!
+
 ## Bug Report 🐞
 Cowspeak considers bugs and security issues very seriously 🐛. If you got any bug in cowspeak, any security issue, or an idea, please let me know via [GitHub](https://github.com/Souravgoswami/cowspeak-deb/issues/new) or email me souravgoswami@protonmail.com
