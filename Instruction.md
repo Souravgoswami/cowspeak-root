@@ -11,7 +11,7 @@
 
 	To create the package:
 	1. Follow the tarball instruction first (below).
-	2. Modify PKGBUILD and put the URL for new tarball (from github).
+	2. Modify PKGBUILD and put the version to `pkgver` for new tarball (from github).
 	3. Run `makepkg -g` and put the md5sum in `md5sums`.
 	4. Run `makepkg` again to generate tarball.
 	5. Arch package is ready. Install that with `pacman -U ...`
