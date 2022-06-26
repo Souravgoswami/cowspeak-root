@@ -10,10 +10,11 @@
 	Tarballs are built from the latest-src directory.
 
 	To create the package:
-	1. Follow the tarball instruction first (below), because AUR package fetches the tarball.
-	2. Make a new tarball based if you have committed changes.
-	3. Push that change.
-	4. Fetch changes.
+	1. Follow the tarball instruction first (below).
+	2. Modify PKGBUILD and put the URL for new tarball (from github).
+	3. Run `makepkg -g` and put the md5sum in `md5sums`.
+	4. Run `makepkg` again to generate tarball.
+	5. Arch package is ready. Install that with `pacman -U ...`
 
 	When commiting a code, please modify the contents of latest-src/
 
